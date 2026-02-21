@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  rasa-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile.manager
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./rasa_project:/app/rasa_project
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - RASA_PROJECT=/app/rasa_project
+    restart: unless-stopped

@@ -1,0 +1,77 @@
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - olá
+    - oi
+    - bom dia
+    - boa tarde
+    - boa noite
+    - hey
+    - oi tudo bem
+    - opa e aí
+    - oiii
+    - oie
+    - oii
+    - Fala
+    - Opa
+    - e aí
+    - fala aí
+    - salve
+    - oi tudo bem
+    - olá bom dia
+    - eae
+    - coe
+    - opa tudo joia
+    - oiee
+
+
+- intent: goodbye
+  examples: |
+    - tchau
+    - até mais
+    - até logo
+    - até
+    - adeus
+    - xau
+    - até mais
+    - tchau
+    - vlw
+    - obrigado
+    - obg pela ajuda
+    - obg
+    - muito obg
+    - muito obrigado
+    - flw
+    - blz
+    - agradecido muito
+    - obg msm
+    - obg tmj
+    - vlw
+    - até mais tarde
+    - agradeço demais
+    - fechou então, obg
+
+
+- intent: affirm
+  examples: |
+    - sim
+    - claro
+    - com certeza
+    - isso mesmo
+    - correto
+    - certo
+
+- intent: deny
+  examples: |
+    - não
+    - de jeito nenhum
+    - não quero
+    - nope
+    - negativo
+
+- intent: entrega 
+    - Qual é o prazo de entrega ?
+    - Quanto tempo demora para entrega ?
+

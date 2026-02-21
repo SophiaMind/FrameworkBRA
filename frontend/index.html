@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rasa Manager</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3354;
+    --accent: #5c6ef8;
+    --accent2: #7c8ef9;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --radius: 10px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; display: flex; height: 100vh; overflow: hidden; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px; min-width: 220px; background: var(--surface);
+    border-right: 1px solid var(--border); display: flex; flex-direction: column;
+    padding: 0;
+  }
+  .sidebar-logo {
+    padding: 20px 16px 12px;
+    font-size: 1.1rem; font-weight: 700; color: var(--accent2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar-logo span { font-size: 1.4rem; }
+  .nav-section { padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .nav-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text2); padding: 8px 16px 4px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 16px; cursor: pointer; font-size: 0.88rem; color: var(--text2);
+    transition: all .15s; border-radius: 0;
+    user-select: none;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(92,110,248,.15); color: var(--accent2); font-weight: 600; border-right: 2px solid var(--accent); }
+  .nav-item .icon { font-size: 1rem; width: 18px; text-align: center; }
+  .server-badge {
+    margin: auto 16px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    font-size: 0.75rem;
+    color: var(--text2);
+  }
+  .server-badge .status-dot {
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; margin-right: 5px;
+    background: var(--red);
+  }
+  .server-badge .status-dot.on { background: var(--green); }
+
+  /* Main */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar h1 { font-size: 1rem; font-weight: 600; }
+  .topbar .actions { display: flex; gap: 8px; }
+  .content { flex: 1; overflow-y: auto; padding: 24px; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 7px; border: none;
+    font-size: 0.83rem; font-weight: 600; cursor: pointer; transition: all .15s;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-success { background: var(--green); color: #fff; }
+  .btn-success:hover { filter: brightness(1.1); }
+  .btn-danger { background: var(--red); color: #fff; }
+  .btn-danger:hover { filter: brightness(1.1); }
+  .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+  .btn-sm { padding: 5px 10px; font-size: 0.78rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Cards */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+  .card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-header h2 { font-size: 0.9rem; font-weight: 600; }
+  .card-body { padding: 18px; }
+
+  /* Textarea / Editor */
+  .code-editor {
+    width: 100%; background: #0d1117; border: 1px solid var(--border);
+    border-radius: 8px; color: #c9d1d9; font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 0.83rem; padding: 14px; resize: vertical;
+    min-height: 400px; line-height: 1.6; outline: none;
+    transition: border-color .2s;
+  }
+  .code-editor:focus { border-color: var(--accent); }
+
+  /* Form */
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 0.8rem; color: var(--text2); margin-bottom: 5px; font-weight: 500; }
+  .form-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 7px; color: var(--text); padding: 8px 12px;
+    font-size: 0.85rem; outline: none; transition: border-color .2s;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-input[type="password"] { letter-spacing: .1em; }
+
+  /* Tabs (sub) */
+  .sub-tabs { display: flex; gap: 4px; margin-bottom: 18px; }
+  .sub-tab {
+    padding: 7px 14px; font-size: 0.82rem; cursor: pointer;
+    border-radius: 6px; color: var(--text2); transition: all .15s;
+    border: 1px solid transparent;
+  }
+  .sub-tab:hover { background: var(--surface2); }
+  .sub-tab.active { background: rgba(92,110,248,.2); color: var(--accent2); border-color: var(--accent); }
+
+  /* Log console */
+  .log-console {
+    background: #0d1117; border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px; font-family: monospace; font-size: 0.78rem; color: #a3e8a3;
+    height: 300px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 99px;
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  }
+  .badge-green { background: rgba(34,197,94,.15); color: var(--green); }
+  .badge-red { background: rgba(239,68,68,.15); color: var(--red); }
+  .badge-yellow { background: rgba(245,158,11,.15); color: var(--yellow); }
+  .badge-blue { background: rgba(92,110,248,.15); color: var(--accent2); }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+  /* Dashboard widgets */
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .stat-icon { font-size: 2rem; }
+  .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--accent2); }
+  .stat-label { font-size: 0.78rem; color: var(--text2); }
+
+  /* Chat */
+  .chat-box {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); height: 400px; overflow-y: auto;
+    padding: 14px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .msg { display: flex; gap: 8px; }
+  .msg.bot { justify-content: flex-start; }
+  .msg.user { justify-content: flex-end; }
+  .bubble {
+    max-width: 70%; padding: 10px 14px; border-radius: 12px;
+    font-size: 0.86rem; line-height: 1.5;
+  }
+  .msg.bot .bubble { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 2px; }
+  .msg.user .bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 2px; }
+  .chat-input-row { display: flex; gap: 8px; margin-top: 10px; }
+  .chat-input-row input { flex: 1; }
+
+  /* Intent editor */
+  .intent-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; margin-bottom: 10px; overflow: hidden;
+  }
+  .intent-header {
+    padding: 10px 14px; display: flex; align-items: center;
+    justify-content: space-between; cursor: pointer;
+  }
+  .intent-header:hover { background: rgba(255,255,255,.03); }
+  .intent-body { padding: 12px 14px; border-top: 1px solid var(--border); }
+  .example-tag {
+    display: inline-block; background: rgba(92,110,248,.1);
+    border: 1px solid rgba(92,110,248,.3); color: var(--accent2);
+    border-radius: 5px; padding: 2px 8px; font-size: 0.78rem; margin: 2px;
+  }
+  .example-list { min-height: 40px; margin-bottom: 8px; }
+
+  /* Alert */
+  .alert {
+    padding: 10px 14px; border-radius: 8px; font-size: 0.83rem;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .alert-success { background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.3); color: var(--green); }
+  .alert-error { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); color: var(--red); }
+  .alert-info { background: rgba(92,110,248,.1); border: 1px solid rgba(92,110,248,.3); color: var(--accent2); }
+
+  /* Page toggle */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Loader */
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Model list */
+  .model-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 7px; margin-bottom: 6px; font-size: 0.83rem;
+  }
+  .model-row .model-info { display: flex; flex-direction: column; gap: 2px; }
+  .model-row .model-meta { font-size: 0.72rem; color: var(--text2); }
+
+  /* Docker progress */
+  .progress-bar { height: 4px; background: var(--surface2); border-radius: 2px; margin: 8px 0; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .3s; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo"><span>🤖</span> Rasa Manager</div>
+
+  <div class="nav-section">
+    <div class="nav-label">Visão Geral</div>
+    <div class="nav-item active" onclick="navigate('dashboard')">
+      <span class="icon">🏠</span> Dashboard
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Dados do Bot</div>
+    <div class="nav-item" onclick="navigate('nlu')">
+      <span class="icon">🧠</span> NLU / Intents
+    </div>
+    <div class="nav-item" onclick="navigate('stories')">
+      <span class="icon">📖</span> Stories / Rules
+    </div>
+    <div class="nav-item" onclick="navigate('responses')">
+      <span class="icon">💬</span> Responses
+    </div>
+    <div class="nav-item" onclick="navigate('domain')">
+      <span class="icon">🌐</span> Domain
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Configuração</div>
+    <div class="nav-item" onclick="navigate('config')">
+      <span class="icon">⚙️</span> Pipeline / Config
+    </div>
+    <div class="nav-item" onclick="navigate('endpoints')">
+      <span class="icon">🔌</span> Endpoints
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Ações</div>
+    <div class="nav-item" onclick="navigate('train')">
+      <span class="icon">🚀</span> Treinar
+    </div>
+    <div class="nav-item" onclick="navigate('chat')">
+      <span class="icon">💬</span> Chat / Testar
+    </div>
+    <div class="nav-item" onclick="navigate('docker')">
+      <span class="icon">🐳</span> Docker
+    </div>
+  </div>
+
+  <div class="server-badge">
+    <div><span class="status-dot" id="serverDot"></span><span id="serverLabel">Servidor offline</span></div>
+    <div style="margin-top:6px;font-size:.7rem;">
+      <a href="#" onclick="navigate('chat');return false;" style="color:var(--accent2)">Gerenciar →</a>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <h1 id="pageTitle">Dashboard</h1>
+    <div class="actions" id="topbarActions"></div>
+  </div>
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:24px">
+        <div class="stat-card"><span class="stat-icon">📦</span><div><div class="stat-value" id="statModels">-</div><div class="stat-label">Modelos treinados</div></div></div>
+        <div class="stat-card"><span class="stat-icon">🧠</span><div><div class="stat-value" id="statIntents">-</div><div class="stat-label">Intents</div></div></div>
+        <div class="stat-card"><span class="stat-icon">📖</span><div><div class="stat-value" id="statStories">-</div><div class="stat-label">Stories</div></div></div>
+        <div class="stat-card"><span class="stat-icon">💬</span><div><div class="stat-value" id="statResponses">-</div><div class="stat-label">Responses</div></div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h2>📦 Modelos Disponíveis</h2></div>
+          <div class="card-body" id="dashModels"><p style="color:var(--text2);font-size:.83rem">Carregando...</p></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>⚡ Ações Rápidas</h2></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn btn-primary" onclick="navigate('train')">🚀 Treinar Novo Modelo</button>
+            <button class="btn btn-ghost" onclick="navigate('nlu')">🧠 Editar Intents</button>
+            <button class="btn btn-ghost" onclick="navigate('stories')">📖 Editar Stories</button>
+            <button class="btn btn-ghost" onclick="navigate('chat')">💬 Testar Bot</button>
+            <button class="btn btn-ghost" onclick="navigate('docker')">🐳 Gerar Docker</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NLU -->
+    <div class="page" id="page-nlu">
+      <div class="sub-tabs">
+        <div class="sub-tab active" onclick="showNLUVisual(this)">👁 Visual</div>
+        <div class="sub-tab" onclick="showNLURaw(this)">📝 YAML Raw</div>
+      </div>
+
+      <!-- Visual Editor -->
+      <div id="nlu-visual">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-size:.83rem;color:var(--text2)">Gerencie suas intents e exemplos de treinamento</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="loadNLUVisual()">↺ Recarregar</button>
+            <button class="btn btn-primary btn-sm" onclick="saveNLUVisual()">💾 Salvar</button>
+            <button class="btn btn-primary btn-sm" onclick="addIntent()">+ Nova Intent</button>
+          </div>
+        </div>
+        <div id="intentList"></div>
+      </div>
+
+      <!-- Raw Editor -->
+      <div id="nlu-raw" style="display:none">
+        <div style="margin-bottom:10px;display:flex;justify-content:flex-end;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="loadFileToEditor('nlu-editor','data/nlu.yml')">↺ Recarregar</button>
+          <button class="btn btn-primary btn-sm" onclick="saveEditor('nlu-editor','data/nlu.yml')">💾 Salvar</button>
+        </div>
+        <textarea class="code-editor" id="nlu-editor" placeholder="Carregando..."></textarea>
+      </div>
+    </div>
+
+    <!-- STORIES -->
+    <div class="page" id="page-stories">
+      <div class="sub-tabs">
+        <div class="sub-tab active" onclick="switchSubTab('stories','stories-yaml',this)">📖 Stories</div>
+        <div class="sub-tab" onclick="switchSubTab('stories','rules-yaml',this)">📋 Rules</div>
+      </div>
+
+      <div id="stories-stories-yaml">
+        <div style="margin-bottom:10px;display:flex;justify-content:flex-end;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="loadFileToEditor('stories-editor','data/stories.yml')">↺ Recarregar</button>
+          <button class="btn btn-primary btn-sm" onclick="saveEditor('stories-editor','data/stories.yml')">💾 Salvar</button>
+        </div>
+        <textarea class="code-editor" id="stories-editor" style="min-height:500px" placeholder="Carregando..."></textarea>
+      </div>
+
+      <div id="stories-rules-yaml" style="display:none">
+        <div style="margin-bottom:10px;display:flex;justify-content:flex-end;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="loadFileToEditor('rules-editor','data/rules.yml')">↺ Recarregar</button>
+          <button class="btn btn-primary btn-sm" onclick="saveEditor('rules-editor','data/rules.yml')">💾 Salvar</button>
+        </div>
+        <textarea class="code-editor" id="rules-editor" style="min-height:500px" placeholder="Carregando..."></textarea>
+      </div>
+    </div>
+
+    <!-- RESPONSES -->
+    <div class="page" id="page-responses">
+      <div style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:.83rem;color:var(--text2)">As responses são gerenciadas dentro do domain.yml. Edite abaixo:</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="loadFileToEditor('responses-editor','domain.yml')">↺ Recarregar</button>
+          <button class="btn btn-primary btn-sm" onclick="saveEditor('responses-editor','domain.yml')">💾 Salvar Domain</button>
+        </div>
+      </div>
+      <div id="responses-visual" style="margin-bottom:18px"></div>
+      <div style="font-size:.8rem;color:var(--text2);margin-bottom:6px">📝 Edição completa do domain.yml:</div>
+      <textarea class="code-editor" id="responses-editor" style="min-height:450px" placeholder="Carregando..."></textarea>
+    </div>
+
+    <!-- DOMAIN -->
+    <div class="page" id="page-domain">
+      <div style="margin-bottom:10px;display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="loadFileToEditor('domain-editor','domain.yml')">↺ Recarregar</button>
+        <button class="btn btn-primary btn-sm" onclick="saveEditor('domain-editor','domain.yml')">💾 Salvar</button>
+      </div>
+      <textarea class="code-editor" id="domain-editor" style="min-height:600px" placeholder="Carregando..."></textarea>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="page" id="page-config">
+      <div class="sub-tabs">
+        <div class="sub-tab active" onclick="switchSubTab('config','config-pipeline',this)">⚙️ Pipeline</div>
+        <div class="sub-tab" onclick="switchSubTab('config','config-credentials',this)">🔑 Credentials</div>
+      </div>
+
+      <div id="config-config-pipeline">
+        <div style="margin-bottom:10px;display:flex;justify-content:flex-end;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="loadFileToEditor('config-editor','config.yml')">↺ Recarregar</button>
+          <button class="btn btn-primary btn-sm" onclick="saveEditor('config-editor','config.yml')">💾 Salvar</button>
+        </div>
+        <textarea class="code-editor" id="config-editor" style="min-height:500px" placeholder="Carregando..."></textarea>
+      </div>
+
+      <div id="config-config-credentials" style="display:none">
+        <div style="margin-bottom:10px;display:flex;justify-content:flex-end;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="loadFileToEditor('cred-editor','credentials.yml')">↺ Recarregar</button>
+          <button class="btn btn-primary btn-sm" onclick="saveEditor('cred-editor','credentials.yml')">💾 Salvar</button>
+        </div>
+        <textarea class="code-editor" id="cred-editor" style="min-height:500px" placeholder="# credentials.yml vazio ou inexistente"></textarea>
+      </div>
+    </div>
+
+    <!-- ENDPOINTS -->
+    <div class="page" id="page-endpoints">
+      <div style="margin-bottom:10px;display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="loadFileToEditor('endpoints-editor','endpoints.yml')">↺ Recarregar</button>
+        <button class="btn btn-primary btn-sm" onclick="saveEditor('endpoints-editor','endpoints.yml')">💾 Salvar</button>
+      </div>
+      <textarea class="code-editor" id="endpoints-editor" style="min-height:400px" placeholder="Carregando..."></textarea>
+    </div>
+
+    <!-- TRAIN -->
+    <div class="page" id="page-train">
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-header"><h2>🚀 Treinar Modelo</h2></div>
+          <div class="card-body">
+            <p style="font-size:.83rem;color:var(--text2);margin-bottom:16px">
+              Isso irá executar <code style="background:var(--surface2);padding:2px 5px;border-radius:4px">rasa train</code> com suas configurações atuais.
+            </p>
+            <div id="trainAlert"></div>
+            <button class="btn btn-success" id="trainBtn" onclick="startTraining()" style="width:100%;justify-content:center;padding:12px">
+              🚀 Iniciar Treinamento
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>📦 Modelos Treinados</h2></div>
+          <div class="card-body" id="trainModelsList"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>📋 Log de Treinamento</h2>
+          <button class="btn btn-ghost btn-sm" onclick="clearTrainLog()">🗑 Limpar</button>
+        </div>
+        <div class="card-body">
+          <div class="log-console" id="trainLog">Aguardando treinamento...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="page" id="page-chat">
+      <div class="grid-2" style="margin-bottom:18px">
+        <div class="card">
+          <div class="card-header"><h2>🖥 Servidor Rasa</h2></div>
+          <div class="card-body">
+            <div id="chatServerStatus" style="margin-bottom:12px;font-size:.83rem;color:var(--text2)">
+              Verificando status...
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-success btn-sm" onclick="startRasaServer()">▶ Iniciar</button>
+              <button class="btn btn-danger btn-sm" onclick="stopRasaServer()">⏹ Parar</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>ℹ️ Info</h2></div>
+          <div class="card-body" style="font-size:.8rem;color:var(--text2);line-height:1.7">
+            1. Selecione um modelo treinado<br>
+            2. Inicie o servidor<br>
+            3. Aguarde ~5s para ele subir<br>
+            4. Converse com o bot abaixo
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>💬 Chat com o Bot</h2>
+          <button class="btn btn-ghost btn-sm" onclick="clearChat()">🗑 Limpar</button>
+        </div>
+        <div class="card-body">
+          <div class="chat-box" id="chatBox">
+            <div class="msg bot"><div class="bubble">👋 Olá! Inicie o servidor e comece a conversar.</div></div>
+          </div>
+          <div class="chat-input-row" style="margin-top:10px">
+            <input class="form-input" id="chatInput" placeholder="Digite uma mensagem..." onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="btn btn-primary" onclick="sendChat()">Enviar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCKER -->
+    <div class="page" id="page-docker">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h2>🐳 Build & Push Docker Hub</h2></div>
+          <div class="card-body">
+            <div id="dockerAlert"></div>
+            <div class="form-group">
+              <label class="form-label">Docker Hub Username *</label>
+              <input class="form-input" id="dockerUser" placeholder="seu-usuario">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Access Token (Docker Hub) *</label>
+              <input class="form-input" type="password" id="dockerToken" placeholder="dckr_pat_...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nome da Imagem *</label>
+              <input class="form-input" id="dockerImage" placeholder="meu-rasa-bot">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tag</label>
+              <input class="form-input" id="dockerTag" value="latest">
+            </div>
+            <div style="margin-bottom:14px;padding:10px;background:var(--surface2);border-radius:7px;font-size:.8rem">
+              <strong>Imagem final:</strong>
+              <span id="dockerPreview" style="color:var(--accent2)">usuario/imagem:tag</span>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary" onclick="buildDocker(true)" style="flex:1;justify-content:center">
+                🐳 Build + Push
+              </button>
+              <button class="btn btn-ghost" onclick="buildDocker(false)">Só Build</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h2>📋 Uso na Pipeline</h2></div>
+          <div class="card-body">
+            <div style="font-size:.8rem;color:var(--text2);margin-bottom:10px">Após o push, use em qualquer pipeline CI/CD:</div>
+            <div class="code-editor" style="min-height:auto;font-size:.75rem;resize:none;height:auto" id="pipelineSnippet" readonly>
+# Docker
+docker pull usuario/imagem:latest
+docker run -p 5005:5005 usuario/imagem:latest
+
+# docker-compose.yml
+services:
+  rasa-bot:
+    image: usuario/imagem:latest
+    ports:
+      - "5005:5005"
+
+# GitHub Actions
+- name: Deploy bot
+  run: |
+    docker pull ${{ secrets.IMAGE }}
+    docker stop rasa-bot || true
+    docker run -d --name rasa-bot \
+      -p 5005:5005 ${{ secrets.IMAGE }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <div class="card-header">
+          <h2>📋 Log do Docker</h2>
+          <span class="badge badge-blue" id="dockerStatusBadge">Aguardando</span>
+        </div>
+        <div class="card-body">
+          <div class="log-console" id="dockerLog">Aguardando build...</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8000/api';
+let currentPage = 'dashboard';
+let trainingSSE = null;
+let dockerSSE = null;
+let serverStatusInterval = null;
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick')?.includes(`'${page}'`)) n.classList.add('active');
+  });
+  currentPage = page;
+  const titles = {
+    dashboard: 'Dashboard', nlu: 'NLU / Intents', stories: 'Stories & Rules',
+    responses: 'Responses', domain: 'Domain', config: 'Pipeline / Config',
+    endpoints: 'Endpoints', train: 'Treinar Modelo', chat: 'Chat / Testar', docker: '🐳 Docker'
+  };
+  document.getElementById('pageTitle').textContent = titles[page] || page;
+  onPageEnter(page);
+}
+
+function showNLUVisual(el) {
+  document.getElementById('nlu-visual').style.display = '';
+  document.getElementById('nlu-raw').style.display = 'none';
+  document.querySelectorAll('#page-nlu .sub-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if (!nluData.intents.length) loadNLUVisual(); else renderIntents();
+}
+
+function showNLURaw(el) {
+  document.getElementById('nlu-visual').style.display = 'none';
+  document.getElementById('nlu-raw').style.display = '';
+  document.querySelectorAll('#page-nlu .sub-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  loadFileToEditor('nlu-editor', 'data/nlu.yml');
+}
+
+function onPageEnter(page) {
+  if (page === 'dashboard') loadDashboard();
+  if (page === 'nlu') {
+    document.getElementById('nlu-visual').style.display = '';
+    document.getElementById('nlu-raw').style.display = 'none';
+    document.querySelectorAll('#page-nlu .sub-tab').forEach((t,i) => t.classList.toggle('active', i===0));
+    loadNLUVisual();
+  }
+  if (page === 'stories') { loadFileToEditor('stories-editor', 'data/stories.yml'); loadFileToEditor('rules-editor', 'data/rules.yml'); }
+  if (page === 'responses' || page === 'domain') { loadFileToEditor('responses-editor', 'domain.yml'); loadFileToEditor('domain-editor', 'domain.yml'); loadResponsesVisual(); }
+  if (page === 'config') { loadFileToEditor('config-editor', 'config.yml'); loadFileToEditor('cred-editor', 'credentials.yml'); }
+  if (page === 'endpoints') loadFileToEditor('endpoints-editor', 'endpoints.yml');
+  if (page === 'train') { loadTrainModels(); pollTrainStatus(); }
+  if (page === 'chat') checkServerStatus();
+  if (page === 'docker') { updateDockerPreview(); loadDockerStatus(); }
+}
+
+// ── Sub tabs ─────────────────────────────────────────────────────────────────
+function switchSubTab(section, tab, el) {
+  const page = document.getElementById(`page-${section}`);
+  page.querySelectorAll('[id^="'+section+'-"]').forEach(d => d.style.display = 'none');
+  page.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+  const target = document.getElementById(`${section}-${tab}`);
+  if (target) target.style.display = '';
+  el.classList.add('active');
+}
+
+// ── API Helpers ───────────────────────────────────────────────────────────────
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(API + path, opts);
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.detail || JSON.stringify(data));
+  return data;
+}
+
+// ── File Editors ──────────────────────────────────────────────────────────────
+async function loadFileToEditor(editorId, filePath) {
+  const el = document.getElementById(editorId);
+  if (!el) return;
+  try {
+    const d = await api('GET', `/files/${filePath}`);
+    el.value = d.content;
+  } catch(e) {
+    el.value = `# Arquivo não encontrado: ${filePath}\n# Crie o arquivo ou verifique o caminho.`;
+  }
+}
+
+async function saveEditor(editorId, filePath) {
+  const el = document.getElementById(editorId);
+  try {
+    await api('POST', `/files/${filePath}`, { content: el.value });
+    showToast(`✅ ${filePath} salvo!`);
+  } catch(e) {
+    showToast(`❌ ${e.message}`, true);
+  }
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const models = await api('GET', '/models');
+    document.getElementById('statModels').textContent = models.models.length;
+    const dashModels = document.getElementById('dashModels');
+    if (!models.models.length) {
+      dashModels.innerHTML = '<p style="color:var(--text2);font-size:.83rem">Nenhum modelo. Clique em Treinar.</p>';
+    } else {
+      dashModels.innerHTML = models.models.slice(0, 5).map(m => `
+        <div class="model-row">
+          <div class="model-info">
+            <div>${m.name}</div>
+            <div class="model-meta">${m.size_mb}MB · ${new Date(m.created).toLocaleString('pt-BR')}</div>
+          </div>
+          <span class="badge badge-green">✓</span>
+        </div>
+      `).join('');
+    }
+
+    const nlu = await api('GET', '/files/data/nlu.yml');
+    const intents = (nlu.content.match(/^- intent:/gm) || []).length;
+    document.getElementById('statIntents').textContent = intents;
+
+    const stories = await api('GET', '/files/data/stories.yml');
+    const storiesCount = (stories.content.match(/^- story:/gm) || []).length;
+    document.getElementById('statStories').textContent = storiesCount;
+
+    const domain = await api('GET', '/files/domain.yml');
+    const responses = (domain.content.match(/^  utter_/gm) || []).length;
+    document.getElementById('statResponses').textContent = responses;
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+// ── NLU Visual Editor ─────────────────────────────────────────────────────────
+let nluData = { intents: [] };
+
+async function loadNLUVisual() {
+  try {
+    const d = await api('GET', '/files/data/nlu.yml');
+    parseNLUYaml(d.content);
+    renderIntents();
+  } catch(e) {}
+}
+
+function parseNLUYaml(text) {
+  nluData.intents = [];
+  // Divide por blocos de intent
+  const blocks = text.split(/\n(?=- intent:)/);
+  for (const block of blocks) {
+    const nameMatch = block.match(/- intent:\s*(.+)/);
+    if (!nameMatch) continue;
+    const name = nameMatch[1].trim();
+    const examples = [];
+    // Pega tudo depois de "examples: |"
+    const exBlock = block.split(/examples:\s*\|?\n/)[1];
+    if (exBlock) {
+      for (const line of exBlock.split('\n')) {
+        const clean = line.trim();
+        if (clean.startsWith('- ')) examples.push(clean.slice(2).trim());
+      }
+    }
+    nluData.intents.push({ name, examples });
+  }
+}
+
+function renderIntents() {
+  const container = document.getElementById('intentList');
+  container.innerHTML = nluData.intents.map((intent, i) => `
+    <div class="intent-card">
+      <div class="intent-header" onclick="toggleIntent(${i})">
+        <div>
+          <strong>${intent.name}</strong>
+          <span style="color:var(--text2);font-size:.78rem;margin-left:8px">${intent.examples.length} exemplos</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();deleteIntent(${i})">🗑</button>
+          <span id="chevron-${i}">▾</span>
+        </div>
+      </div>
+      <div class="intent-body" id="intent-body-${i}" style="display:none">
+        <div class="example-list" id="examples-${i}">
+          ${intent.examples.map((ex, ei) => `
+            <span class="example-tag" title="Clique duplo para remover" ondblclick="removeExample(${i},${ei})">${ex}</span>
+          `).join('')}
+        </div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <input class="form-input" id="new-ex-${i}" placeholder="Novo exemplo..." style="flex:1"
+            onkeydown="if(event.key==='Enter')addExample(${i})">
+          <button class="btn btn-primary btn-sm" onclick="addExample(${i})">+ Add</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleIntent(i) {
+  const body = document.getElementById(`intent-body-${i}`);
+  const chevron = document.getElementById(`chevron-${i}`);
+  const visible = body.style.display !== 'none';
+  body.style.display = visible ? 'none' : '';
+  chevron.textContent = visible ? '▾' : '▴';
+}
+
+function addExample(i) {
+  const inp = document.getElementById(`new-ex-${i}`);
+  const val = inp.value.trim();
+  if (!val) return;
+  nluData.intents[i].examples.push(val);
+  inp.value = '';
+  renderIntents();
+  document.getElementById(`intent-body-${i}`).style.display = '';
+}
+
+function removeExample(intentIdx, exIdx) {
+  nluData.intents[intentIdx].examples.splice(exIdx, 1);
+  renderIntents();
+  document.getElementById(`intent-body-${intentIdx}`).style.display = '';
+}
+
+function deleteIntent(i) {
+  if (!confirm(`Deletar intent "${nluData.intents[i].name}"?`)) return;
+  nluData.intents.splice(i, 1);
+  renderIntents();
+}
+
+function addIntent() {
+  const name = prompt('Nome da nova intent (ex: pedir_suporte):');
+  if (!name) return;
+  nluData.intents.push({ name: name.trim(), examples: [] });
+  renderIntents();
+}
+
+async function saveNLUVisual() {
+  let yaml = 'version: "3.1"\n\nnlu:\n';
+  for (const intent of nluData.intents) {
+    yaml += `- intent: ${intent.name}\n  examples: |\n`;
+    for (const ex of intent.examples) yaml += `    - ${ex}\n`;
+    yaml += '\n';
+  }
+  try {
+    await api('POST', '/files/data/nlu.yml', { content: yaml });
+    showToast('✅ NLU salvo!');
+    loadFileToEditor('nlu-editor', 'data/nlu.yml');
+  } catch(e) {
+    showToast(`❌ ${e.message}`, true);
+  }
+}
+
+// ── Responses Visual ──────────────────────────────────────────────────────────
+async function loadResponsesVisual() {
+  try {
+    const d = await api('GET', '/files/domain.yml');
+    const container = document.getElementById('responses-visual');
+    const lines = d.content.split('\n');
+    const responses = [];
+    let current = null;
+
+    for (const line of lines) {
+      // Detecta início de uma utter (ex: "  utter_greet:")
+      const utterMatch = line.match(/^  (utter_[^:]+):/);
+      if (utterMatch) {
+        if (current) responses.push(current);
+        current = { name: utterMatch[1], texts: [] };
+        continue;
+      }
+      // Detecta linhas de texto dentro da utter
+      if (current && line.match(/^\s+- text:/)) {
+        const text = line.replace(/^\s+- text:\s*/, '').replace(/^["']|["']$/g, '').trim();
+        if (text) current.texts.push(text);
+        continue;
+      }
+      // Se linha não é indentada e não é vazia, saímos do bloco
+      if (current && line.length > 0 && !line.startsWith(' ')) {
+        current = null;
+      }
+    }
+    if (current) responses.push(current);
+
+    if (!responses.length) { container.innerHTML = ''; return; }
+
+    container.innerHTML = '<div style="font-size:.8rem;color:var(--text2);margin-bottom:8px">📋 Responses detectadas no domain.yml:</div>' +
+      responses.map(r => `
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px 14px;margin-bottom:8px">
+          <div style="font-weight:600;font-size:.83rem;color:var(--accent2);margin-bottom:4px">${r.name}</div>
+          ${r.texts.map(t => `<div style="font-size:.8rem;color:var(--text2);padding:2px 0;word-break:break-word">→ ${t}</div>`).join('')}
+        </div>
+      `).join('');
+  } catch(e) { console.error(e); }
+}
+
+// ── Training ──────────────────────────────────────────────────────────────────
+async function startTraining() {
+  const btn = document.getElementById('trainBtn');
+  const alert = document.getElementById('trainAlert');
+  try {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Treinando...';
+    alert.innerHTML = '<div class="alert alert-info">🚀 Treinamento iniciado! Acompanhe o log abaixo.</div>';
+    await api('POST', '/train');
+    streamTrainLogs();
+  } catch(e) {
+    alert.innerHTML = `<div class="alert alert-error">❌ ${e.message}</div>`;
+    btn.disabled = false;
+    btn.innerHTML = '🚀 Iniciar Treinamento';
+  }
+}
+
+function streamTrainLogs() {
+  if (trainingSSE) trainingSSE.close();
+  const log = document.getElementById('trainLog');
+  log.textContent = '';
+  trainingSSE = new EventSource(`${API}/train/logs`);
+  trainingSSE.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if (data.log !== undefined) {
+      log.textContent += data.log + '\n';
+      log.scrollTop = log.scrollHeight;
+    }
+    if (data.done) {
+      trainingSSE.close();
+      const btn = document.getElementById('trainBtn');
+      btn.disabled = false;
+      btn.innerHTML = '🚀 Iniciar Treinamento';
+      loadTrainModels();
+      loadDashboard();
+      document.getElementById('trainAlert').innerHTML = '<div class="alert alert-success">✅ Treinamento concluído!</div>';
+    }
+  };
+}
+
+async function pollTrainStatus() {
+  try {
+    const s = await api('GET', '/train/status');
+    if (s.running) {
+      document.getElementById('trainBtn').disabled = true;
+      document.getElementById('trainBtn').innerHTML = '<span class="spinner"></span> Treinando...';
+      streamTrainLogs();
+    }
+  } catch(e) {}
+}
+
+async function loadTrainModels() {
+  try {
+    const d = await api('GET', '/models');
+    const container = document.getElementById('trainModelsList');
+    if (!d.models.length) {
+      container.innerHTML = '<p style="color:var(--text2);font-size:.83rem">Nenhum modelo ainda.</p>';
+      return;
+    }
+    container.innerHTML = d.models.map(m => `
+      <div class="model-row">
+        <div class="model-info">
+          <div style="font-size:.8rem">${m.name}</div>
+          <div class="model-meta">${m.size_mb}MB · ${new Date(m.created).toLocaleString('pt-BR')}</div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deleteModel('${m.name}')">🗑</button>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+async function deleteModel(name) {
+  if (!confirm(`Deletar ${name}?`)) return;
+  await api('DELETE', `/models/${name}`);
+  loadTrainModels();
+}
+
+function clearTrainLog() {
+  document.getElementById('trainLog').textContent = '';
+}
+
+// ── Server / Chat ─────────────────────────────────────────────────────────────
+async function checkServerStatus() {
+  try {
+    const s = await api('GET', '/server/status');
+    updateServerUI(s.running);
+  } catch(e) {}
+}
+
+function updateServerUI(running) {
+  const dot = document.getElementById('serverDot');
+  const label = document.getElementById('serverLabel');
+  const chatStatus = document.getElementById('chatServerStatus');
+  dot.className = 'status-dot' + (running ? ' on' : '');
+  label.textContent = running ? 'Servidor ativo' : 'Servidor offline';
+  if (chatStatus) {
+    chatStatus.innerHTML = running
+      ? '<span class="badge badge-green">● Online - Porta 5005</span>'
+      : '<span class="badge badge-red">● Offline</span><br><span style="font-size:.75rem;margin-top:4px;display:block">Inicie o servidor para usar o chat</span>';
+  }
+}
+
+async function startRasaServer() {
+  try {
+    showToast('⏳ Iniciando servidor Rasa... (pode demorar ~10s)');
+    await api('POST', '/server/start', {});
+    setTimeout(checkServerStatus, 5000);
+  } catch(e) {
+    showToast(`❌ ${e.message}`, true);
+  }
+}
+
+async function stopRasaServer() {
+  try {
+    await api('POST', '/server/stop');
+    updateServerUI(false);
+    showToast('⏹ Servidor parado');
+  } catch(e) {
+    showToast(`❌ ${e.message}`, true);
+  }
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  appendChatMsg(msg, 'user');
+
+  try {
+    const d = await api('POST', '/chat', { message: msg });
+    if (d.responses && d.responses.length) {
+      for (const r of d.responses) {
+        appendChatMsg(r.text || JSON.stringify(r), 'bot');
+      }
+    } else {
+      appendChatMsg('(sem resposta)', 'bot');
+    }
+  } catch(e) {
+    appendChatMsg(`❌ ${e.message}`, 'bot');
+  }
+}
+
+function appendChatMsg(text, who) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.className = `msg ${who}`;
+  div.innerHTML = `<div class="bubble">${text}</div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function clearChat() {
+  document.getElementById('chatBox').innerHTML = '<div class="msg bot"><div class="bubble">👋 Chat limpo. Comece a conversar!</div></div>';
+}
+
+// ── Docker ────────────────────────────────────────────────────────────────────
+function updateDockerPreview() {
+  const user = document.getElementById('dockerUser')?.value || 'usuario';
+  const img = document.getElementById('dockerImage')?.value || 'imagem';
+  const tag = document.getElementById('dockerTag')?.value || 'latest';
+  const preview = document.getElementById('dockerPreview');
+  if (preview) preview.textContent = `${user}/${img}:${tag}`;
+  const snippet = document.getElementById('pipelineSnippet');
+  if (snippet) {
+    snippet.value = `# Pull e rodar\ndocker pull ${user}/${img}:${tag}\ndocker run -p 5005:5005 ${user}/${img}:${tag}\n\n# docker-compose.yml\nservices:\n  rasa-bot:\n    image: ${user}/${img}:${tag}\n    ports:\n      - "5005:5005"\n\n# GitHub Actions\n- name: Deploy bot\n  run: |\n    docker pull ${user}/${img}:${tag}\n    docker stop rasa-bot || true\n    docker run -d --name rasa-bot -p 5005:5005 ${user}/${img}:${tag}`;
+  }
+}
+
+['dockerUser','dockerImage','dockerTag'].forEach(id => {
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateDockerPreview);
+  }, 100);
+});
+
+async function buildDocker(push) {
+  const user = document.getElementById('dockerUser').value.trim();
+  const token = document.getElementById('dockerToken').value.trim();
+  const image = document.getElementById('dockerImage').value.trim();
+  const tag = document.getElementById('dockerTag').value.trim() || 'latest';
+
+  if (!user || !image) {
+    showDockerAlert('Preencha usuário e nome da imagem', true);
+    return;
+  }
+  if (push && !token) {
+    showDockerAlert('Preencha o Access Token para fazer push', true);
+    return;
+  }
+
+  try {
+    showDockerAlert('🔨 Build iniciado...');
+    await api('POST', '/docker/build', { dockerhub_user: user, dockerhub_token: token, image_name: image, tag, push });
+    streamDockerLogs();
+  } catch(e) {
+    showDockerAlert(e.message, true);
+  }
+}
+
+function streamDockerLogs() {
+  if (dockerSSE) dockerSSE.close();
+  const log = document.getElementById('dockerLog');
+  log.textContent = '';
+  document.getElementById('dockerStatusBadge').textContent = 'Em progresso';
+  document.getElementById('dockerStatusBadge').className = 'badge badge-yellow';
+
+  dockerSSE = new EventSource(`${API}/docker/logs`);
+  dockerSSE.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if (data.log !== undefined) {
+      log.textContent += data.log + '\n';
+      log.scrollTop = log.scrollHeight;
+    }
+    if (data.done) {
+      dockerSSE.close();
+      const badge = document.getElementById('dockerStatusBadge');
+      if (data.success) {
+        badge.textContent = '✅ Sucesso';
+        badge.className = 'badge badge-green';
+        showDockerAlert('✅ Imagem publicada com sucesso no Docker Hub!');
+      } else {
+        badge.textContent = '❌ Falhou';
+        badge.className = 'badge badge-red';
+        showDockerAlert('❌ Build falhou. Verifique o log.', true);
+      }
+    }
+  };
+}
+
+function showDockerAlert(msg, isError = false) {
+  const el = document.getElementById('dockerAlert');
+  el.innerHTML = `<div class="alert ${isError ? 'alert-error' : 'alert-info'}">${msg}</div>`;
+}
+
+async function loadDockerStatus() {
+  try {
+    const d = await api('GET', '/docker/status');
+    if (d.running) streamDockerLogs();
+    if (d.logs && d.logs.length) {
+      document.getElementById('dockerLog').textContent = d.logs.join('\n');
+    }
+  } catch(e) {}
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function showToast(msg, isError = false) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = `
+    position:fixed;bottom:20px;right:20px;
+    background:${isError ? 'var(--red)' : 'var(--green)'};color:#fff;
+    padding:10px 18px;border-radius:8px;font-size:.83rem;font-weight:600;
+    z-index:9999;animation:fadeIn .2s;
+  `;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+// Adiciona botão de salvar NLU no topbar quando na página NLU visual
+document.addEventListener('DOMContentLoaded', () => {
+  loadDashboard();
+  checkServerStatus();
+  setInterval(checkServerStatus, 10000);
+});
+
+
+</script>
+</body>
+</html>

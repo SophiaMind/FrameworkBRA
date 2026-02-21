@@ -1,0 +1,123 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+
+entities: []
+
+slots: {}
+
+responses:
+  utter_greet:
+  - text: "Olá! Como posso te ajudar?"
+  - text: "Oi! Em que posso ajudar?"
+  - text:  Olá! Como posso ajudar?
+  - text:  Opá! Como posso ajudar?
+  - text:  Bom dia! Como posso ajudar?
+  - text:  Boa tarde! Como posso ajudar?
+  - text:  Boa noite! Como posso ajudar?
+  - text:  Eaí! Qual é a sua dúvida?
+  - text:  E aí! Em que posso te ajudar?
+  - text:  Fala aí! Qual a boa?
+  - text:  Salve! Como posso ser útil?
+  - text:  Oi! Tudo bem por aqui, e com você?
+  - text:  Olá! Bom dia, como posso ajudar?
+  - text:  Eae! Qual sua dúvida?
+  - text:  Coe! Fala aí qual é a dúvida.
+  - text:  Opa! Tudo joia? Pode perguntar.
+  - text:  Bom dia! Em que posso ser útil?
+  - text:  Boa tarde! Conte comigo.
+  - text:  Oiee! Que bom te ver!
+  - text:  Oiii! Como posso te ajudar hoje?
+  - text:  Saudações! No que posso auxiliar?
+  - text:  Hey! Qual é a sua questão?
+  - text:  Olá! Como vai? Em que posso ajudar?
+  - text:  Opa! E aí, qual é a dúvida?
+  - text:  Fala! Pode mandar sua pergunta.
+  - text:  E aí! Tudo beleza? Manda ver!
+
+
+  utter_goodbye:
+  - text: "Até mais! Volte sempre."
+  - text: "Tchau! Boa sorte!"
+  - text: Até mais!
+  - text: De nada!
+  - text: Foi um prazer ajudar vc.
+  - text: nada, até a próxima !
+  - text: espero ter te ajudado, até a próxima.
+  - text: Falou! Qualquer coisa tamo aí.
+  - text: Partiu! Quando precisar, é só chamar.
+  - text: Beleza! Volte sempre :)
+  - text: Que isso, disponha sempre!
+  - text: Imagina, tmj!
+  - text: Igualmente! Até a próxima.
+  - text: Flw!
+  - text: Tmj!
+  - text: Falou! Boa sorte.
+  - text: Abraços!
+  - text: Suave! Até mais tarde então.
+  - text: De boa!
+  - text: Disponha, foi um prazer.
+  - text: Agradeço sua confiança!
+  - text: Tchau! Espero te ver logo.
+  - text: Que bom que ajudou.
+  - text: Fechou! Obrigado você.
+  - text: Vaza não! Brincadeira, até logo.
+
+  utter_entrega:
+  - text: O prazo de entrega é imediato.
+
+  utter_info_sistema: 
+  - text: Nosso sistema é uma plataforma de automação de mensagens para WhatsApp que: (1) gera mensagens com IA personalizadas, (2) identifica contatos em grupos para ampliar seu alcance, (3) registra contatos em massa com consentimento e (4) gerencia estratégias de aquecimento de chips para manter a entrega estável. Quer ver um resumo do fluxo de cada módulo?
+  - text: Tem randomização de tempo entre envios para evitar bloqueios..
+  - text: Indicamos que não ultrapasse 500-1000 mensagens por dia por número. Opere preferencialmente em horário comercial (8h-20h).
+  - text: Faça pausas de 10-20 minutos a cada 2-3 horas de envios.
+  - text: Antes de disparos em massa, converse manualmente, participe de grupos e receba mensagens, para que seu número aqueça, caso contrário você não conseguirá fazer o disparo.
+  - text: Sim você consegue e indicamos que divida os envios entre diferentes números para diluir o risco.
+  - text: Sim você pode disparar links e mídias, porém indicamos que envios de links e mídias repetidamente para diluir o risco.
+  - text: Sempre se apresente no primeiro contato: 'Olá, sou [seu nome/empresa]... para que o whatsApp entenda que você é um humano se apresentando e não um robô.
+  - text: Não, o sistema não te avisa. O WhatsApp que te alerta com uma notificação.
+  - text: Os tipos de arquivos de arquivos para que você possa adicionar leads em massa são ( .TXT, .CSV, .XLSX ). 
+  - text: IA de mensagens: usamos modelos de linguagem para criar conteúdos relevantes conforme o objetivo da campanha, tom da marca e regras de KPIs definidas por você. Você pode definir templates e variáveis para personalização.
+  - text: O Cronos Flow automatiza disparos de mensagens via WhatsApp com velocidade, estabilidade e personalização através de IA.
+  - text: Oferecemos disparo em massa, personalização com IA, relatórios e gestão de contatos de forma segura.
+  - text: Trabalhamos com disparo inteligente, segmentação de público e analytics em tempo real.
+  - text: Você importa seus contatos, personaliza as mensagens com IA, agenda ou dispara na hora de forma rápida e estável.
+  - text: Sim! Nossa IA analisa seu público e gera novos leads.
+  - text: Com certeza! Fazemos disparo em massa para milhares de contatos mantendo a qualidade da entrega.
+  - text: Após escolher seu plano, você faz cadastro, configura sua conta e já pode começar a disparar.
+  - text: A plataforma é intuitiva, mas oferecemos treinamento e suporte para você aproveitar ao máximo.
+  - text: Temos período de teste para você conhecer todas as funcionalidades antes de decidir.
+  - text: Os limites variam por plano.
+  - text: Suportamos texto, imagens, vídeos, documentos e áudios para tornar suas mensagens mais engaging.
+  - text: Atualmente somos especializados em WhatsApp, com a mesma qualidade em todos os disparos.
+  - text: Segurança máxima: criptografia, autenticação em duas etapas e compliance com LGPD.
+  - text: Sim! Somos totalmente compliant com LGPD e protegemos todos os dados dos seus contatos.
+  - text: Personalizamos com nome, dados do contato e contexto usando IA para maior relevância.
+  - text: Integramos com CRMs, planilhas e outras ferramentas para otimizar seu fluxo.
+  - text: Cada plano tem seu limite, mas garantimos alta capacidade mesmo no plano básico.
+  - text: Analisamos seu volume de mensagens e necessidades para indicar o plano ideal.
+  - text: Sim, você pode usar seu próprio número WhatsApp Business para manter sua identidade.
+  - text: O Cronos Flow é uma plataforma de automação de disparo de mensagens que ajuda empresas a se comunicarem de forma rápida, estável e personalizada.
+  - text: Sim! Você pode utilizá-lo para campanhas de marketing, notificações, lembretes, cobranças ou qualquer comunicação estratégica com seus clientes
+  - text: Totalmente. Cada cliente utiliza servidores e proxies dedicados, mantendo os dados protegidos e os disparos livres de bloqueios inesperados.
+  - text: Depende da sua demanda. Temos desde o plano Basic para pequenas empresas até soluções Black para grandes volumes. Veja nossos planos!
+  - text: Trabalhamos com limites seguros e métricas de engajamento que seguem as diretrizes do WhatsApp, minimizando riscos de bloqueio.
+  - text: Sim! Temos controle de taxa de entrega, limite de mensagens por hora e monitoramento de qualidade para evitar bloqueios.
+  - text: Seguimos rigorosamente as políticas da Meta com sistema de warm-up progressivo e análise de comportamento para máxima segurança.
+  - text: Garantimos práticas seguras com distribuição inteligente de mensagens e alertas proativos para evitar qualquer restrição.
+  - text: Monitoramos taxa de resposta, número de bloqueios e qualidade das interações para manter sua conta sempre ativa e segura.
+  - text: Não, o sistema é restrito para só números do Brasil(+55)
+
+  utter_geracao_ia:
+  - text: A IA gera mensagens baseadas em templates configuráveis e dados de contexto.
+
+  utter_default:
+  - text: "Desculpe, não entendi. Pode reformular?"
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

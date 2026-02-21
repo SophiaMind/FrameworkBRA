@@ -1,0 +1,22 @@
+# Dockerfile para o Rasa Manager (interface + backend)
+FROM rasa/rasa:3.6.20-full
+
+USER root
+
+WORKDIR /app
+
+# Instala dependências do manager
+RUN pip install fastapi uvicorn[standard] pyyaml httpx python-multipart --break-system-packages 2>/dev/null || \
+    pip install fastapi uvicorn[standard] pyyaml httpx python-multipart
+
+# Instala Docker CLI para poder fazer build dentro do container
+RUN apt-get update && apt-get install -y docker.io && rm -rf /var/lib/apt/lists/*
+
+# Copia arquivos
+COPY server.py .
+COPY frontend/ frontend/
+COPY rasa_project/ rasa_project/
+
+EXPOSE 8000
+
+CMD ["python", "server.py"]
